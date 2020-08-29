@@ -25,20 +25,11 @@ class MainViewModel(private val statusRepository: StatusRepository) :
         statusRepository.repositoryCallback =
             object : StatusRepository.RepositoryCallback<StatusData> {
                 override fun onSuccess(data: StatusData) {
-                    val api = when (currentUrl) {
-                        PUBLIC_API_URL -> {
-                            PUBLIC_API
-                        }
-                        PRIVATE_API_URL -> {
-                            PRIVATE_API
-                        }
-                        else -> EMPTY
-                    }
-                    _showToast.value = "$api success : ${data.status} - ${data.message}"
+                    _showToast.value = "${getAPIName()} success : ${data.status} - ${data.message}"
                 }
 
                 override fun onFailed(exception: Throwable) {
-
+                    _showToast.value = "${getAPIName()} failed"
                 }
 
             }
@@ -47,5 +38,17 @@ class MainViewModel(private val statusRepository: StatusRepository) :
     fun requestData(currentUrl: String) {
         this.currentUrl = currentUrl
         statusRepository.getData(currentUrl)
+    }
+
+    private fun getAPIName(): String {
+        return when (currentUrl) {
+            PUBLIC_API_URL -> {
+                PUBLIC_API
+            }
+            PRIVATE_API_URL -> {
+                PRIVATE_API
+            }
+            else -> EMPTY
+        }
     }
 }
