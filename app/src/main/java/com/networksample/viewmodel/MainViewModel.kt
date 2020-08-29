@@ -11,30 +11,37 @@ import com.networksample.repository.remote.data.StatusData
 class MainViewModel(private val statusRepository: StatusRepository) :
     ViewModel() {
 
+    companion object {
+        private const val PUBLIC_API = "public api"
+        private const val PRIVATE_API = "private api"
+        private const val EMPTY = "empty"
+    }
+
     private val _showToast = MutableLiveData<String>()
     val showToast: LiveData<String> = _showToast
     private var currentUrl: String = ""
 
     init {
-        statusRepository.repositoryCallback = object : StatusRepository.RepositoryCallback<StatusData> {
-            override fun onSuccess(data: StatusData) {
-                val api = when (currentUrl) {
-                    PUBLIC_API_URL -> {
-                        "public api"
+        statusRepository.repositoryCallback =
+            object : StatusRepository.RepositoryCallback<StatusData> {
+                override fun onSuccess(data: StatusData) {
+                    val api = when (currentUrl) {
+                        PUBLIC_API_URL -> {
+                            PUBLIC_API
+                        }
+                        PRIVATE_API_URL -> {
+                            PRIVATE_API
+                        }
+                        else -> EMPTY
                     }
-                    PRIVATE_API_URL -> {
-                        "private api"
-                    }
-                    else -> "empty"
+                    _showToast.value = "$api success : ${data.status} - ${data.message}"
                 }
-                _showToast.value = "$api success : ${data.status} - ${data.message}"
+
+                override fun onFailed(exception: Throwable) {
+
+                }
+
             }
-
-            override fun onFailed(exception: Throwable) {
-
-            }
-
-        }
     }
 
     fun requestData(currentUrl: String) {
